@@ -2,9 +2,9 @@
 
 namespace simulator::core
 {
-    class Status
+    struct State
     {
-        double x, y, dir;
-        double vx, vy, w;
+        double X, Y, Dir;
+        double VX, VY, W;
     };
 } // namespace simulator::core
