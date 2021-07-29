@@ -1,0 +1,12 @@
+#goal definition
+geometry_msgs/PoseStamped target_pose_local_frame
+string behavior_tree
+---
+#result definition
+int16 result
+---
+geometry_msgs/PoseStamped current_pose
+builtin_interfaces/Duration navigation_time
+builtin_interfaces/Duration estimated_time_remaining
+int16 number_of_recoveries
+float32 distance_remaining
