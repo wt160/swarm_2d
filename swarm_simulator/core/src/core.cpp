@@ -11,16 +11,23 @@ namespace simulator::core
         this->Map_Ptr = std::make_shared<nav_msgs::msg::OccupancyGrid>();
         this->States_Ptr = std::make_shared<std::map<std::string, State>>();
 
-        this->declare_parameter("iteration_timestep", 0.01);
-        this->declare_parameter("simulation_frequency", 100.0);
+        this->declare_parameter("iteration_timestep", 0.02);
+        this->declare_parameter("simulation_frequency", 50.0);
 
         this->declare_parameter("visualization_frequency", 30.0);
         this->declare_parameter("pose_array_length", 1.0);
+        this->declare_parameter("map_resolution", 0.05);
+        this->declare_parameter("translation_v_limit", 2.0);
+        this->declare_parameter("rotation_v_limit", 2.0);
 
         this->iterationTimestep = this->get_parameter("iteration_timestep").as_double();
         this->simualtionFrequency = this->get_parameter("simulation_frequency").as_double();
         this->visualizationFrequency = this->get_parameter("visualization_frequency").as_double();
         this->poseArrowLength = this->get_parameter("pose_array_length").as_double();
+        this->map_resolution = this->get_parameter("map_resolution").as_double();
+        this->translation_v_limit = this->get_parameter("translation_v_limit").as_double();
+        this->rotation_v_limit = this->get_parameter("rotation_v_limit").as_double();
+
 
         this->environmentVisualizer_ptr = this->create_publisher<nav_msgs::msg::OccupancyGrid>("map", 10);
         this->statesVisualizer_ptr = this->create_publisher<visualization_msgs::msg::MarkerArray>("states", 10);
@@ -32,6 +39,33 @@ namespace simulator::core
                                                                std::bind(&CoreNode::visualizationPeriodElapsedCallback, this));
     }
 
+    void CoreNode::setEnvironmentMap(std::string pic_name)
+    {
+        inverted_input_map = cv::imread(pic_name, cv::IMREAD_GRAYSCALE);
+        if(!inverted_input_map.data)
+        {
+            std::cout<<"failed to read image from "<<pic_name<<std::endl;
+        }
+        else
+        {   
+            cv::flip(inverted_input_map, input_environment_map, 0);
+            this->Map_Ptr->header.frame_id = "map";
+            this->Map_Ptr->info.resolution = map_resolution;
+            this->Map_Ptr->info.width = input_environment_map.cols;
+            this->Map_Ptr->info.height = input_environment_map.rows;
+            map_width = input_environment_map.cols;
+            map_height = input_environment_map.rows;
+            int data_size = this->Map_Ptr->info.width * this->Map_Ptr->info.height;
+            this->Map_Ptr->data.resize(data_size, -1);
+            for(int i = 0; i < data_size; i++)
+            {
+                int mat_value = (int)input_environment_map.data[i];
+                // if(mat_value == 255) this->Map_Ptr->data[i] = 0;
+                if(mat_value != 255) this->Map_Ptr->data[i] = 100;
+
+            }
+        }
+    }
     void CoreNode::simulationPeriodElapsedCallback(void)
     {
         this->StatesMutex.lock();
@@ -57,6 +91,7 @@ namespace simulator::core
         this->MapMutex.lock_shared();
         this->environmentVisualizer_ptr->publish(*this->Map_Ptr);
         this->MapMutex.unlock_shared();
+
 
         this->StatesMutex.lock_shared();
         MarkerArray poses, labels;

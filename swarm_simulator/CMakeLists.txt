@@ -18,20 +18,42 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_action REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(visualization_msgs REQUIRED)
 find_package(nav2_map_server REQUIRED)
-
+find_package(swarm_interfaces REQUIRED)
 find_package(OpenCV REQUIRED)
 
 aux_source_directory(core/src CORE_SRC)
+include_directories(${OpenCV_INCLUDE_DIRS})
 add_library(${PROJECT_NAME}_core ${CORE_SRC})
-ament_target_dependencies(${PROJECT_NAME}_core rclcpp nav_msgs geometry_msgs visualization_msgs)
+ament_target_dependencies(${PROJECT_NAME}_core rclcpp nav_msgs geometry_msgs visualization_msgs OpenCV)
+
+
+
+aux_source_directory(plugins/navigation NAVIGATION_PLUGIN_SRC)
+add_library(${PROJECT_NAME}_navigation_plugin ${NAVIGATION_PLUGIN_SRC})
+ament_target_dependencies(${PROJECT_NAME}_navigation_plugin rclcpp rclcpp_action nav_msgs swarm_interfaces geometry_msgs visualization_msgs)
+
+aux_source_directory(plugins/slam SLAM_PLUGIN_SRC)
+add_library(${PROJECT_NAME}_slam_plugin ${SLAM_PLUGIN_SRC})
+ament_target_dependencies(${PROJECT_NAME}_slam_plugin rclcpp nav_msgs swarm_interfaces geometry_msgs visualization_msgs)
 
 add_executable(core_test_node test/core_test_node.cpp)
-target_link_libraries(core_test_node ${PROJECT_NAME}_core)
+target_link_libraries(core_test_node ${PROJECT_NAME}_core  ${PROJECT_NAME}_navigation_plugin ${PROJECT_NAME}_slam_plugin)
 ament_target_dependencies(core_test_node rclcpp nav_msgs geometry_msgs visualization_msgs)
+
+add_executable(navigation_test_node test/navigation_test_node.cpp)
+target_link_libraries(navigation_test_node ${PROJECT_NAME}_core  ${PROJECT_NAME}_navigation_plugin ${PROJECT_NAME}_slam_plugin)
+ament_target_dependencies(navigation_test_node rclcpp nav_msgs geometry_msgs visualization_msgs swarm_interfaces)
+
+add_executable(main_app app/main.cpp)
+target_link_libraries(main_app ${PROJECT_NAME}_core  ${PROJECT_NAME}_navigation_plugin ${PROJECT_NAME}_slam_plugin)
+ament_target_dependencies(main_app rclcpp nav_msgs geometry_msgs visualization_msgs)
+
+
 
 if(BUILD_TESTING)
     find_package(ament_lint_auto REQUIRED)
@@ -46,6 +68,8 @@ endif()
 
 install(TARGETS
     core_test_node
+    navigation_test_node
+    main_app
     DESTINATION lib/${PROJECT_NAME})
 
 ament_package()
