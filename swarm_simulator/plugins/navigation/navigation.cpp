@@ -141,7 +141,9 @@ namespace simulator::plugin
                     (*(core_ptr_->States_Ptr))[robot_name_].VY = vy;
                     (*(core_ptr_->States_Ptr))[robot_name_].W = vw;
                 }
+                // path_iterator ++;
                 path_iterator ++;
+
                 next_navigation_pt = *path_iterator;
                 next_navigation_x = next_navigation_pt.x *map_resolution;
                 next_navigation_y = next_navigation_pt.y *map_resolution;

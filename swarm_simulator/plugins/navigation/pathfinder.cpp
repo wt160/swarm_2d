@@ -36,7 +36,7 @@ namespace simulator::plugin
         //diagonal distance heuristic
         double dx = std::fabs(end.x - p.x);
         double dy = std::fabs(end.y - p.y);
-        return dx + dy + (1.414 - 2)*std::min(dx, dy);
+        return 1.5*(dx + dy + (1.414 - 2)*std::min(dx, dy));
 
     }
 
@@ -62,7 +62,7 @@ namespace simulator::plugin
  
         for( int x = 0; x < 8; x++ ) {
             // one can make diagonals have different cost
-            stepCost = x < 4 ? 1 : 1.414;
+            stepCost = x < 4 ? 1.414 : 1.0;
             neighbour = n.pos + neighbours[x];
             if( neighbour == end ){ 
                 parent_map[make_pair(neighbour.x, neighbour.y)] = n;
@@ -74,8 +74,8 @@ namespace simulator::plugin
                 Node neigh;
                 neigh.pos = neighbour;
                 if( !isExistPoint( neigh, nc ) ) {        
-                    neigh.g_cost = nc; 
-                    neigh.f_cost = /*calcH( neighbour )*/ + neigh.g_cost;
+                    neigh.g_cost = nc;        
+                    neigh.f_cost = calcH( neighbour ) + neigh.g_cost;
                     parent_map[make_pair(neigh.pos.x, neigh.pos.y)] = n;
                     cost_so_far[neigh] = neigh.g_cost;
                     open.put(neigh, neigh.f_cost );
