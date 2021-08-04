@@ -48,7 +48,7 @@ namespace simulator::plugin
         }
 
         std::cout<<"line_list size:"<<check_line_list.size()<<std::endl;
-        robot_map_pub_ptr = this->create_publisher<nav_msgs::msg::OccupancyGrid>(robot_name_ + "/robot_map", 10);
+        robot_map_pub_ptr = this->create_publisher<nav_msgs::msg::OccupancyGrid>(robot_name_ + "/map", 10);
         initMapWithUnknownMask();
     }
 

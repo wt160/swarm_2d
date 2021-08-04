@@ -37,6 +37,12 @@ namespace simulator::core
                                                             std::bind(&CoreNode::simulationPeriodElapsedCallback, this));
         this->visualizationTimer_ptr = this->create_wall_timer(std::chrono::microseconds((int)(1000000 / this->visualizationFrequency)),
                                                                std::bind(&CoreNode::visualizationPeriodElapsedCallback, this));
+
+        for (auto &&pair : *this->States_Ptr)
+        {
+            rclcpp::Publisher<geometry_msgs::msg::Point>::SharedPtr pose_ptr = this->create_publisher<geometry_msgs::msg::Point>(pair.first + "/robot_pose", 10);
+            robot_pose_ptr_map[pair.first] = pose_ptr;
+        }
     }
 
     void CoreNode::setEnvironmentMap(std::string pic_name)
@@ -124,6 +130,14 @@ namespace simulator::core
             label.scale.z = 0.3;
             label.pose.position.x = state.X, label.pose.position.y = state.Y, label.pose.position.z = 0.5;
             labels.markers.push_back(label);
+
+            //publish robot pose message
+            geometry_msgs::msg::Point g_pose;
+            g_pose.x = state.X;
+            g_pose.y = state.Y;
+            g_pose.z = 0.0;
+
+            robot_pose_ptr_map[pair.first]->publish(g_pose);
 
             ++id;
         }

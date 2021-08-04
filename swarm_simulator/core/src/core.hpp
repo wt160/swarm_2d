@@ -57,6 +57,7 @@ namespace simulator::core
  
         rclcpp::TimerBase::SharedPtr visualizationTimer_ptr;
         rclcpp::Publisher<nav_msgs::msg::OccupancyGrid>::SharedPtr environmentVisualizer_ptr;
+        std::map<std::string, rclcpp::Publisher<geometry_msgs::msg::Point>::SharedPtr> robot_pose_ptr_map;
         rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr statesVisualizer_ptr;
         rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr labelsVisualizer_ptr;
         void visualizationPeriodElapsedCallback(void);
