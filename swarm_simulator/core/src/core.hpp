@@ -20,6 +20,7 @@ namespace simulator::core
     {
     public:
         CoreNode(void);
+        void initSimulationEnv(std::vector<std::string>&, std::vector<std::tuple<double, double, double>>&, std::string);
         void setEnvironmentMap(std::string);
         std::pair<int, int> getMapWidthAndHeight(){return std::make_pair(map_width, map_height);}
         double getMapResolution(){return map_resolution;}

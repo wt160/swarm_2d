@@ -38,7 +38,21 @@ namespace simulator::core
         this->visualizationTimer_ptr = this->create_wall_timer(std::chrono::microseconds((int)(1000000 / this->visualizationFrequency)),
                                                                std::bind(&CoreNode::visualizationPeriodElapsedCallback, this));
 
-        for (auto &&pair : *this->States_Ptr)
+
+        
+    }
+    void CoreNode::initSimulationEnv(std::vector<std::string>& robot_names, std::vector<std::tuple<double, double, double>>& robot_init_poses, std::string map_file)
+    {
+        StatesMutex.lock();
+        for(int i = 0; i < robot_names.size(); i++){
+            States_Ptr->insert(std::pair<std::string, core::State>{robot_names[i], core::State{.X = std::get<0>(robot_init_poses[i]), .Y = std::get<1>(robot_init_poses[i]), .Dir = std::get<2>(robot_init_poses[i]), .VX = 0.0, .VY = 0.0, .W = 0.0}});
+        }
+    
+        StatesMutex.unlock();
+        setEnvironmentMap(map_file);
+
+
+        for (auto &&pair : *States_Ptr)
         {
             rclcpp::Publisher<geometry_msgs::msg::Point>::SharedPtr pose_ptr = this->create_publisher<geometry_msgs::msg::Point>(pair.first + "/robot_pose", 10);
             robot_pose_ptr_map[pair.first] = pose_ptr;
