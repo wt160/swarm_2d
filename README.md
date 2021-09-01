@@ -1,4 +1,27 @@
+# 启动与初始化
+
+swarm仿真器可以由如下命令启动：
+
+```shell
+ros2 run swarm_simulator --ros-args --params-file xxx
+```
+
+其中`xxx`是用来指定仿真器初始化采用的地图、机器人数量与坐标以及其他各项参数的文件，通过ros的参数系统传递入程序。一个参数文件的例子如下：
+
+```yaml
+simulator_mainapp:
+  ros__parameters:
+    map: /root/swarm_simulator_ws/src/swarm_2d/swarm_simulator/app/warehouse_01.png #必须指定绝对坐标
+    names: [robot01, robot02]
+    xs: [2.0, 5.0]
+    ys: [2.0, 1.0]
+    zs: [0.0, 0.0]
+```
+
+> 由于ros2的参数系统不支持复杂类型数组，因此只能将机器人的名称、坐标各项参数分别放入不同数组中。
+
 # swarm_2d
+
 To test the Astar navigation, run the commands below, 
 
 ros2 run swarm_simulator main_app
