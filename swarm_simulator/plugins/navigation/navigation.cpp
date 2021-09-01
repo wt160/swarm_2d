@@ -125,8 +125,8 @@ namespace simulator::plugin
             double vw = 0.0;
             while(std::fabs(robot_pos_x - end_pos_x) > map_resolution || std::fabs(robot_pos_y - end_pos_y) > map_resolution){
                 
-                while(std::fabs(robot_pos_x - next_navigation_x) > 0.3*map_resolution || std::fabs(robot_pos_y - next_navigation_y) > 0.3*map_resolution){ 
-                    std::cout<<"x_diff:"<<robot_pos_x - next_navigation_x<<", y_diff:"<<robot_pos_y - next_navigation_y<<std::endl;
+                while(std::fabs(robot_pos_x - next_navigation_x) > 0.3*v_limit*map_resolution || std::fabs(robot_pos_y - next_navigation_y) > 0.3*v_limit*map_resolution){ 
+                    //std::cout<<"x_diff:"<<robot_pos_x - next_navigation_x<<", y_diff:"<<robot_pos_y - next_navigation_y<<std::endl;
                     robot_pos_x = (*(core_ptr_->States_Ptr))[robot_name_].X;
                     robot_pos_y = (*(core_ptr_->States_Ptr))[robot_name_].Y;
                     robot_pos_theta = (*(core_ptr_->States_Ptr))[robot_name_].Dir;
@@ -136,7 +136,7 @@ namespace simulator::plugin
                     vx = v_limit * dx / v_length;
                     vy = v_limit * dy / v_length;
                     vw = 0.1;
-                    std::cout<<"vx,vy,vw:"<<vx<<","<<vy<<","<<vw<<std::endl;
+                    //std::cout<<"vx,vy,vw:"<<vx<<","<<vy<<","<<vw<<std::endl;
                     (*(core_ptr_->States_Ptr))[robot_name_].VX = vx;
                     (*(core_ptr_->States_Ptr))[robot_name_].VY = vy;
                     (*(core_ptr_->States_Ptr))[robot_name_].W = vw;

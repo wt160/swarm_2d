@@ -112,7 +112,7 @@ namespace simulator::plugin
         Point curr_pt = end;
         while(curr_pt.x != -1 && curr_pt.y != -1){
             path.push_front(curr_pt);
-            std::cout<<"pushing "<<curr_pt.x<<","<<curr_pt.y<<std::endl;
+            // std::cout<<"pushing "<<curr_pt.x<<","<<curr_pt.y<<std::endl;
             Node parent_node = parent_map[make_pair(curr_pt.x, curr_pt.y)];
             Point parent_pt = parent_node.pos;
             if(parent_pt.x == curr_pt.x || parent_pt.y == curr_pt.y){

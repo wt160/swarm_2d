@@ -11,6 +11,7 @@ int main(int argc, char const *argv[])
     using namespace simulator;
 
     rclcpp::init(argc, argv);
+    
 
     shared_ptr<core::CoreNode> core_ptr = make_shared<core::CoreNode>();
     core_ptr->StatesMutex.lock();

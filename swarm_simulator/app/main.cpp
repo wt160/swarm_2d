@@ -19,7 +19,7 @@ int main(int argc, char const *argv[])
     }
     if(map_file.size() == 0)
         map_file = "/home/wei/swarm_2d_ws/src/swarm_simulator/app/warehouse_01.png";
-    int robot_num = 10;
+    int robot_num = 4;
     vector<string> robot_names;
     vector<tuple<double, double, double>> robot_init_poses;
 

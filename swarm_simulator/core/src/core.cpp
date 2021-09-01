@@ -17,8 +17,8 @@ namespace simulator::core
         this->declare_parameter("visualization_frequency", 30.0);
         this->declare_parameter("pose_array_length", 1.0);
         this->declare_parameter("map_resolution", 0.05);
-        this->declare_parameter("translation_v_limit", 1.0);
-        this->declare_parameter("rotation_v_limit", 1.0);
+        this->declare_parameter("translation_v_limit", 3.0);
+        this->declare_parameter("rotation_v_limit", 3.0);
 
         this->iterationTimestep = this->get_parameter("iteration_timestep").as_double();
         this->simualtionFrequency = this->get_parameter("simulation_frequency").as_double();
