@@ -30,6 +30,7 @@ namespace simulator::plugin
         rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_sub_; 
     private:
         std::string robot_name_;
+        bool got_new_goal_;
         rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr path_visualize_ptr;
         nav_msgs::msg::OccupancyGrid::SharedPtr shared_map_ptr;
         rclcpp_action::Server<NavigationAction>::SharedPtr navigation_action_server_;

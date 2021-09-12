@@ -56,6 +56,7 @@ namespace simulator::plugin
         // if (goal->order > 9000) {
         //   return rclcpp_action::GoalResponse::REJECT;
         // }
+        got_new_goal_ = true;
         return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
     }
 
@@ -70,6 +71,7 @@ namespace simulator::plugin
     {
         RCLCPP_INFO(this->get_logger(), "Executing goal");
         rclcpp::Rate loop_rate(1);
+        got_new_goal_ = false;
         const auto goal = goal_handle->get_goal();
         auto feedback = std::make_shared<NavigationAction::Feedback>();
         // auto & sequence = feedback->sequence;
@@ -140,6 +142,12 @@ namespace simulator::plugin
                     (*(core_ptr_->States_Ptr))[robot_name_].VX = vx;
                     (*(core_ptr_->States_Ptr))[robot_name_].VY = vy;
                     (*(core_ptr_->States_Ptr))[robot_name_].W = vw;
+                    if(got_new_goal_){
+                        break;
+                    }
+                }
+                if(got_new_goal_){
+                    break;
                 }
                 // path_iterator ++;
                 path_iterator ++;
