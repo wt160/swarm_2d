@@ -8,8 +8,8 @@ namespace simulator::plugin
         core_ptr_ = core_ptr;
         robot_name_ = robot_name;
         shared_map_ptr = core_ptr->Map_Ptr;
-        navigation_action_callback_group_ = this->create_callback_group(rclcpp::callback_group::CallbackGroupType::Reentrant);
-        this->navigation_action_server_ = rclcpp_action::create_server<NavigationAction>(this->get_node_base_interface(), this->get_node_clock_interface(), this->get_node_logging_interface(), this->get_node_waitables_interface(), robot_name_ + "/navigation_action", std::bind(&NavigationPlugin::handle_action_goal, this, std::placeholders::_1, std::placeholders::_2), std::bind(&NavigationPlugin::handle_action_cancel, this, std::placeholders::_1), std::bind(&NavigationPlugin::handle_action_accepted, this, std::placeholders::_1), rcl_action_server_get_default_options(), navigation_action_callback_group_);
+        //navigation_action_callback_group_ = this->create_callback_group(rclcpp::callback_group::CallbackGroupType::Reentrant);
+        this->navigation_action_server_ = rclcpp_action::create_server<NavigationAction>(this->get_node_base_interface(), this->get_node_clock_interface(), this->get_node_logging_interface(), this->get_node_waitables_interface(), robot_name_ + "/navigation_action", std::bind(&NavigationPlugin::handle_action_goal, this, std::placeholders::_1, std::placeholders::_2), std::bind(&NavigationPlugin::handle_action_cancel, this, std::placeholders::_1), std::bind(&NavigationPlugin::handle_action_accepted, this, std::placeholders::_1), rcl_action_server_get_default_options());
         this->cmd_vel_sub_ = this->create_subscription<geometry_msgs::msg::Twist>(robot_name_ + "/cmd_vel", 10, std::bind(&NavigationPlugin::cmdVelCallback, this, std::placeholders::_1));
         path_visualize_ptr = this->create_publisher<visualization_msgs::msg::Marker>(robot_name_ + "/plan_path", 10);
     }
