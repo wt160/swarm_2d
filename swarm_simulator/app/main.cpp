@@ -20,7 +20,7 @@ namespace simulator
             this->declare_parameter("xs");
             this->declare_parameter("ys");
             this->declare_parameter("zs");
-            this->declare_parameter("range", 100.0);
+            this->declare_parameter("range", 200.0);
             this->declare_parameter("slam_freq", 5.0);
 
             auto map_file = this->get_parameter("map").as_string();
