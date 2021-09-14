@@ -143,11 +143,11 @@ namespace simulator::plugin
                     (*(core_ptr_->States_Ptr))[robot_name_].VY = vy;
                     (*(core_ptr_->States_Ptr))[robot_name_].W = vw;
                     if(got_new_goal_){
-                        break;
+                        return;
                     }
                 }
                 if(got_new_goal_){
-                    break;
+                    return;
                 }
                 // path_iterator ++;
                 path_iterator ++;
