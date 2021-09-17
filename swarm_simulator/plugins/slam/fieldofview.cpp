@@ -25,9 +25,9 @@ namespace simulator::plugin
 
         center_to_circle_set.clear();
 
-        double degree_increment = 360.0 / (2 * 3.14159 * line_of_sight_length) - 0.6;
-        std::cout<<"degree increment:"<<degree_increment<<std::endl;
-        for(double j = 0.0; j < 360.0; j+= 0.3){
+        // double degree_increment = 360.0 / (2 * 3.14159 * line_of_sight_length) - 0.6;
+        // std::cout<<"degree increment:"<<degree_increment<<std::endl;
+        for(double j = 0.0; j < 360.0; j+= 0.13){
             double rad = j / 180.0 * 3.14159;
             double xmove = cos(rad);
             double ymove = sin(rad);

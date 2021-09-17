@@ -51,7 +51,7 @@ ament_target_dependencies(navigation_test_node rclcpp nav_msgs geometry_msgs vis
 
 add_executable(main_app app/main.cpp)
 target_link_libraries(main_app ${PROJECT_NAME}_core  ${PROJECT_NAME}_navigation_plugin ${PROJECT_NAME}_slam_plugin)
-ament_target_dependencies(main_app rclcpp nav_msgs geometry_msgs visualization_msgs)
+ament_target_dependencies(main_app rclcpp nav_msgs geometry_msgs visualization_msgs swarm_interfaces)
 
 
 
