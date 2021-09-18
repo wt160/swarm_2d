@@ -7,29 +7,16 @@ namespace simulator::plugin
     {
         core_ptr_ = core_ptr;
         robot_name_ = robot_name;
-        got_stop_navigation_request_ = false;
         is_navigation_action_active_ = false;
         shared_map_ptr = core_ptr->Map_Ptr;
         //navigation_action_callback_group_ = this->create_callback_group(rclcpp::callback_group::CallbackGroupType::Reentrant);
         this->navigation_action_server_ = rclcpp_action::create_server<NavigationAction>(this->get_node_base_interface(), this->get_node_clock_interface(), this->get_node_logging_interface(), this->get_node_waitables_interface(), robot_name_ + "/navigation_action", std::bind(&NavigationPlugin::handle_action_goal, this, std::placeholders::_1, std::placeholders::_2), std::bind(&NavigationPlugin::handle_action_cancel, this, std::placeholders::_1), std::bind(&NavigationPlugin::handle_action_accepted, this, std::placeholders::_1), rcl_action_server_get_default_options());
         this->cmd_vel_sub_ = this->create_subscription<geometry_msgs::msg::Twist>(robot_name_ + "/cmd_vel", 10, std::bind(&NavigationPlugin::cmdVelCallback, this, std::placeholders::_1));
         path_visualize_ptr = this->create_publisher<visualization_msgs::msg::Marker>(robot_name_ + "/plan_path", 10);
-        stop_navigation_service_server_ = this->create_service<StopNavigationService>(robot_name_ + "/stop_navigation_service", std::bind(&NavigationPlugin::stop_navigation_service_request, this, std::placeholders::_1, std::placeholders::_2));
 
     }
 
-    void NavigationPlugin::stop_navigation_service_request(const std::shared_ptr<StopNavigationService::Request> request,
-          std::shared_ptr<StopNavigationService::Response> response){
-        if(is_navigation_action_active_ == false){
-            return;
-        }else{
-            got_stop_navigation_request_ = true;
-            while(is_navigation_action_active_ == true);
-            got_stop_navigation_request_ = false;
-            return;
-        }
-       
-    }
+  
 
     void NavigationPlugin::publishPlannedPath(std::list<Point>& path, double resolution)
     {
@@ -160,16 +147,9 @@ namespace simulator::plugin
                     (*(core_ptr_->States_Ptr))[robot_name_].VX = vx;
                     (*(core_ptr_->States_Ptr))[robot_name_].VY = vy;
                     (*(core_ptr_->States_Ptr))[robot_name_].W = vw;
-                    if(got_stop_navigation_request_){
-                        (*(core_ptr_->States_Ptr))[robot_name_].VX = 0.0;
-                        (*(core_ptr_->States_Ptr))[robot_name_].VY = 0.0;
-                        (*(core_ptr_->States_Ptr))[robot_name_].W = 0.0;
-                        break;
-                    }
+                    
                 }
-                if(got_stop_navigation_request_){
-                    break;
-                }
+                
                 // path_iterator ++;
                 path_iterator ++;
 

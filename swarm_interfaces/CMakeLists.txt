@@ -43,7 +43,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   # "srv/GetPeerRobotState.srv"
   # "srv/SetRobotTargetPose.srv"
   # "srv/GetPeerRobotStatePid.srv"
-  "srv/StopNavigation.srv"
+  # "srv/StopNavigation.srv"
   # "action/GroupCoordinator.action" 
   "action/NavigationAction.action"
   DEPENDENCIES geometry_msgs nav_msgs std_msgs

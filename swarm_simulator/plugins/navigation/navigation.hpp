@@ -16,7 +16,6 @@ namespace simulator::plugin
     public:
         using NavigationAction = swarm_interfaces::action::NavigationAction;
         using GoalHandleNavigationAction = rclcpp_action::ServerGoalHandle<NavigationAction>;
-        using StopNavigationService = swarm_interfaces::srv::StopNavigation;
 
         NavigationPlugin(std::string, std::shared_ptr<simulator::core::CoreNode>&);
         rclcpp_action::GoalResponse handle_action_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const NavigationAction::Goal> goal);
@@ -26,17 +25,13 @@ namespace simulator::plugin
         void handle_action_accepted(const std::shared_ptr<GoalHandleNavigationAction> goal_handle);
         void cmdVelCallback(const geometry_msgs::msg::Twist::SharedPtr msg);
         void publishPlannedPath(std::list<Point>& path, double);
-        void stop_navigation_service_request(const std::shared_ptr<StopNavigationService::Request> request,
-          std::shared_ptr<StopNavigationService::Response> response);
         
         std::shared_ptr<simulator::core::CoreNode> core_ptr_;
         rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_sub_; 
     private:
         std::string robot_name_;
-        bool got_stop_navigation_request_;
         bool is_navigation_action_active_;
         bool got_new_goal_;
-        rclcpp::Service<StopNavigationService>::SharedPtr stop_navigation_service_server_;
         rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr path_visualize_ptr;
         nav_msgs::msg::OccupancyGrid::SharedPtr shared_map_ptr;
         rclcpp_action::Server<NavigationAction>::SharedPtr navigation_action_server_;
