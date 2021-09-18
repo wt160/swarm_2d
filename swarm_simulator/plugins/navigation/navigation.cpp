@@ -77,8 +77,8 @@ namespace simulator::plugin
         if(has_goal_ == true){
             if(std::fabs(current_robot_x_ - end_robot_x_) > map_resolution_ || std::fabs(current_robot_y_ - end_robot_y_) > map_resolution_){
                 
-                if((direction_x_ == 1 && current_robot_x_ - next_navigation_x_ < -0.4*v_limit*map_resolution_)  || (direction_x_ == -1 && current_robot_x_ - next_navigation_x_ > 0.4*v_limit*map_resolution_) 
-                || (direction_y_ == 1 && current_robot_y_ - next_navigation_y_ < -0.4*v_limit*map_resolution_) || (direction_y_ == -1 && current_robot_y_ - next_navigation_y_ > 0.4*v_limit*map_resolution_) )
+                if((direction_x_ == 1 && current_robot_x_ - next_navigation_x_ < -0.3*v_limit*map_resolution_)  || (direction_x_ == -1 && current_robot_x_ - next_navigation_x_ > 0.3*v_limit*map_resolution_) 
+                || (direction_y_ == 1 && current_robot_y_ - next_navigation_y_ < -0.3*v_limit*map_resolution_) || (direction_y_ == -1 && current_robot_y_ - next_navigation_y_ > 0.3*v_limit*map_resolution_) )
                 { 
                 //if(std::fabs(current_robot_x_ - next_navigation_x_) > 0.3*v_limit*map_resolution_ || std::fabs(current_robot_y_ - next_navigation_y_) > 0.3*v_limit*map_resolution_){ 
                     // std::cout<<"x_diff:"<<current_robot_x_ - next_navigation_x_<<", y_diff:"<<current_robot_y_ - next_navigation_y_<<std::endl;
@@ -108,16 +108,25 @@ namespace simulator::plugin
 
                     if(next_navigation_x_ - old_navigation_x > 0){
                         direction_x_ = 1;
-                    }else{
+                    }else if(next_navigation_x_ - old_navigation_x < 0){
                         direction_x_ = -1;
+                    }else{
+                        direction_x_ = 0;
                     }
 
                     if(next_navigation_y_ - old_navigation_y > 0){
                         direction_y_ = 1;
-                    }else{
+                    }else if(next_navigation_y_ - old_navigation_y < 0){
                         direction_y_ = -1;
+                    }else{
+                        direction_y_ = 0;
                     }
-
+                    if(path_iterator_ == current_path_.end()){
+                        (*(core_ptr_->States_Ptr))[robot_name_].VX = 0.0;
+                        (*(core_ptr_->States_Ptr))[robot_name_].VY = 0.0;
+                        (*(core_ptr_->States_Ptr))[robot_name_].W = 0.0;
+                        has_goal_ = false;
+                    }
                 }
                 
                 
