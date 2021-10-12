@@ -17,17 +17,17 @@ namespace simulator::plugin
         using NavigationAction = swarm_interfaces::action::NavigationAction;
         using GoalHandleNavigationAction = rclcpp_action::ServerGoalHandle<NavigationAction>;
 
-        NavigationPlugin(std::string, std::shared_ptr<simulator::core::CoreNode>&);
-        rclcpp_action::GoalResponse handle_action_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const NavigationAction::Goal> goal);
-        rclcpp_action::CancelResponse handle_action_cancel(
-        const std::shared_ptr<GoalHandleNavigationAction> goal_handle);
+        NavigationPlugin(std::string, std::shared_ptr<simulator::core::CoreNode> &);
+        rclcpp_action::GoalResponse handle_action_goal(const rclcpp_action::GoalUUID &uuid, std::shared_ptr<const NavigationAction::Goal> goal);
+        rclcpp_action::CancelResponse handle_action_cancel(const std::shared_ptr<GoalHandleNavigationAction> goal_handle);
         void execute(const std::shared_ptr<GoalHandleNavigationAction> goal_handle);
         void handle_action_accepted(const std::shared_ptr<GoalHandleNavigationAction> goal_handle);
         void cmdVelCallback(const geometry_msgs::msg::Twist::SharedPtr msg);
-        void publishPlannedPath(std::list<Point>& path, double);
-        
+        void publishPlannedPath(std::list<Point> &path, double);
+
         std::shared_ptr<simulator::core::CoreNode> core_ptr_;
-        rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_sub_; 
+        rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_sub_;
+
     private:
         std::string robot_name_;
         bool is_navigation_action_active_;
