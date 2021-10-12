@@ -1,9 +1,8 @@
-#include "navigation.hpp" 
-
+#include "navigation.hpp"
 
 namespace simulator::plugin
 {
-    NavigationPlugin::NavigationPlugin(std::string robot_name, std::shared_ptr<simulator::core::CoreNode>& core_ptr) : rclcpp::Node{"navigation_plugin_" + robot_name}
+    NavigationPlugin::NavigationPlugin(std::string robot_name, std::shared_ptr<simulator::core::CoreNode> &core_ptr) : rclcpp::Node{"navigation_plugin_" + robot_name}
     {
         core_ptr_ = core_ptr;
         robot_name_ = robot_name;
@@ -14,7 +13,7 @@ namespace simulator::plugin
         path_visualize_ptr = this->create_publisher<visualization_msgs::msg::Marker>(robot_name_ + "/plan_path", 10);
     }
 
-    void NavigationPlugin::publishPlannedPath(std::list<Point>& path, double resolution)
+    void NavigationPlugin::publishPlannedPath(std::list<Point> &path, double resolution)
     {
         visualization_msgs::msg::Marker path_marker;
         path_marker.id = 0;
@@ -24,31 +23,28 @@ namespace simulator::plugin
         path_marker.scale.x = 0.1, path_marker.scale.y = 0.2;
         path_marker.action = 0;
 
-        for(auto p = path.begin(); p != path.end(); p ++)
+        for (auto p = path.begin(); p != path.end(); p++)
         {
             geometry_msgs::msg::Point geo_p;
             geo_p.x = p->x * resolution;
             geo_p.y = p->y * resolution;
             geo_p.z = 0;
             path_marker.points.push_back(geo_p);
-
         }
         path_visualize_ptr->publish(path_marker);
     }
 
     void NavigationPlugin::cmdVelCallback(const geometry_msgs::msg::Twist::SharedPtr msg)
     {
-        std::cout<<robot_name_<<" cmdvel callback"<<std::endl;
+        std::cout << robot_name_ << " cmdvel callback" << std::endl;
         (*(core_ptr_->States_Ptr))[robot_name_].VX = msg->linear.x;
         (*(core_ptr_->States_Ptr))[robot_name_].VY = msg->linear.y;
         (*(core_ptr_->States_Ptr))[robot_name_].W = msg->angular.z;
-
-
     }
 
     rclcpp_action::GoalResponse NavigationPlugin::handle_action_goal(
-    const rclcpp_action::GoalUUID & uuid,
-    std::shared_ptr<const NavigationAction::Goal> goal)
+        const rclcpp_action::GoalUUID &uuid,
+        std::shared_ptr<const NavigationAction::Goal> goal)
     {
         RCLCPP_INFO(this->get_logger(), "Received goal request");
         (void)uuid;
@@ -61,7 +57,8 @@ namespace simulator::plugin
     }
 
     rclcpp_action::CancelResponse NavigationPlugin::handle_action_cancel(
-        const std::shared_ptr<GoalHandleNavigationAction> goal_handle){
+        const std::shared_ptr<GoalHandleNavigationAction> goal_handle)
+    {
         RCLCPP_INFO(this->get_logger(), "Received request to cancel goal");
         (void)goal_handle;
         return rclcpp_action::CancelResponse::ACCEPT;
@@ -79,7 +76,7 @@ namespace simulator::plugin
         // sequence.push_back(1);
         auto result = std::make_shared<NavigationAction::Result>();
         double map_resolution = core_ptr_->getMapResolution();
-    
+
         geometry_msgs::msg::Pose current_robot_pose_local_frame_ = goal->target_pose_local_frame.pose;
         // peer_pose_in_peer_frame_dict_ = peer_pose_in_peer_frame_dict;
         //get current robot's current pose from simulator::core
@@ -88,8 +85,8 @@ namespace simulator::plugin
         double curr_y = curr_state.Y;
         double curr_theta = curr_state.Dir;
 
-        int curr_x_coord = (round)(curr_x /map_resolution); 
-        int curr_y_coord = (round)(curr_y /map_resolution); 
+        int curr_x_coord = (round)(curr_x / map_resolution);
+        int curr_y_coord = (round)(curr_y / map_resolution);
 
         int target_x_coord = (round)(current_robot_pose_local_frame_.position.x / map_resolution);
         int target_y_coord = (round)(current_robot_pose_local_frame_.position.y / map_resolution);
@@ -98,23 +95,24 @@ namespace simulator::plugin
         PathFinder path_finder;
         path_finder.init(shared_map_ptr);
         Point start(curr_x_coord, curr_y_coord);
-        Point end(target_x_coord, target_y_coord); 
-        if(path_finder.search(start, end)){
+        Point end(target_x_coord, target_y_coord);
+        if (path_finder.search(start, end))
+        {
             //success find path from start to end
             std::list<Point> path;
-            std::cout<<"success"<<std::endl;
+            std::cout << "success" << std::endl;
             double path_cost = path_finder.getPathAndCost(path);
-            std::cout<<"path cost:"<<path_cost<<std::endl;
+            std::cout << "path cost:" << path_cost << std::endl;
             publishPlannedPath(path, map_resolution);
             Point curr_navigation_pt = start;
             auto path_iterator = path.begin();
-            path_iterator ++;
+            path_iterator++;
             Point next_navigation_pt = *path_iterator;
-            double next_navigation_x = next_navigation_pt.x *map_resolution;
-            double next_navigation_y = next_navigation_pt.y *map_resolution;
+            double next_navigation_x = next_navigation_pt.x * map_resolution;
+            double next_navigation_y = next_navigation_pt.y * map_resolution;
 
-            double robot_pos_x = (double)start.x* map_resolution;
-            double robot_pos_y = (double)start.y* map_resolution;
+            double robot_pos_x = (double)start.x * map_resolution;
+            double robot_pos_y = (double)start.y * map_resolution;
             double robot_pos_theta = 0.0;
             double end_pos_x = (double)end.x * map_resolution;
             double end_pos_y = (double)end.y * map_resolution;
@@ -125,16 +123,18 @@ namespace simulator::plugin
             double vx = 0.0;
             double vy = 0.0;
             double vw = 0.0;
-            while(std::fabs(robot_pos_x - end_pos_x) > map_resolution || std::fabs(robot_pos_y - end_pos_y) > map_resolution){
-                
-                while(std::fabs(robot_pos_x - next_navigation_x) > 0.3*v_limit*map_resolution || std::fabs(robot_pos_y - next_navigation_y) > 0.3*v_limit*map_resolution){ 
+            while (std::fabs(robot_pos_x - end_pos_x) > map_resolution || std::fabs(robot_pos_y - end_pos_y) > map_resolution)
+            {
+
+                while (std::fabs(robot_pos_x - next_navigation_x) > 0.3 * v_limit * map_resolution || std::fabs(robot_pos_y - next_navigation_y) > 0.3 * v_limit * map_resolution)
+                {
                     //std::cout<<"x_diff:"<<robot_pos_x - next_navigation_x<<", y_diff:"<<robot_pos_y - next_navigation_y<<std::endl;
                     robot_pos_x = (*(core_ptr_->States_Ptr))[robot_name_].X;
                     robot_pos_y = (*(core_ptr_->States_Ptr))[robot_name_].Y;
                     robot_pos_theta = (*(core_ptr_->States_Ptr))[robot_name_].Dir;
                     double dx = next_navigation_x - robot_pos_x;
                     double dy = next_navigation_y - robot_pos_y;
-                    double v_length = std::sqrt(dx*dx + dy*dy);
+                    double v_length = std::sqrt(dx * dx + dy * dy);
                     vx = v_limit * dx / v_length;
                     vy = v_limit * dy / v_length;
                     vw = 0.1;
@@ -142,56 +142,44 @@ namespace simulator::plugin
                     (*(core_ptr_->States_Ptr))[robot_name_].VX = vx;
                     (*(core_ptr_->States_Ptr))[robot_name_].VY = vy;
                     (*(core_ptr_->States_Ptr))[robot_name_].W = vw;
-                    if(got_new_goal_){
+                    if (got_new_goal_)
+                    {
                         break;
                     }
                 }
-                if(got_new_goal_){
+                if (got_new_goal_)
+                {
                     break;
                 }
                 // path_iterator ++;
-                path_iterator ++;
+                path_iterator++;
 
                 next_navigation_pt = *path_iterator;
-                next_navigation_x = next_navigation_pt.x *map_resolution;
-                next_navigation_y = next_navigation_pt.y *map_resolution;
-
-
+                next_navigation_x = next_navigation_pt.x * map_resolution;
+                next_navigation_y = next_navigation_pt.y * map_resolution;
             }
 
             (*(core_ptr_->States_Ptr))[robot_name_].VX = 0.0;
             (*(core_ptr_->States_Ptr))[robot_name_].VY = 0.0;
             (*(core_ptr_->States_Ptr))[robot_name_].W = 0.0;
-            
-
-        }else{
+        }
+        else
+        {
             //fail, why?
         }
-        
-
-
-
-
 
         //iterate over between calculate the velocity and update the pos in simulator::core, until reach the target pose
-
-
-
 
         // result->current_target_pose = curr_target_pose_local_frame;
         result->result = 1;
         goal_handle->succeed(result);
-                    // return curr_target_pose_local_frame;
-
-
-
-        
-        
+        // return curr_target_pose_local_frame;
 
         // Check if goal is done
-        if (rclcpp::ok()) {
-        //   result->sequence = sequence;
-        RCLCPP_INFO(this->get_logger(), "Goal Succeeded");
+        if (rclcpp::ok())
+        {
+            //   result->sequence = sequence;
+            RCLCPP_INFO(this->get_logger(), "Goal Succeeded");
         }
     }
 
@@ -200,7 +188,7 @@ namespace simulator::plugin
         // using namespace std::placeholders;
         // this needs to return quickly to avoid blocking the executor, so spin up a new thread
         std::thread{std::bind(&NavigationPlugin::execute, this, std::placeholders::_1), goal_handle}.detach();
-            // execute(goal_handle);
+        // execute(goal_handle);
     }
 
 }
