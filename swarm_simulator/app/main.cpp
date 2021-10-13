@@ -74,7 +74,7 @@ int main(int argc, char const *argv[])
 
     auto launcher_ptr = std::make_shared<LauncherNode>();
 
-    rclcpp::executors::MultiThreadedExecutor executor;
+    rclcpp::executors::SingleThreadedExecutor executor;
 
     for (auto &&node_ptr : launcher_ptr->GetNodes())
         executor.add_node(node_ptr);
