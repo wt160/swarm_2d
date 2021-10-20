@@ -76,7 +76,7 @@ namespace simulator::plugin
                 return true;
             }
 
-            if (isValid(neighbour) && m(neighbour.x, neighbour.y) != 100)
+            if (isValid(neighbour) && m(neighbour.x, neighbour.y) != 100 && m(neighbour.x, neighbour.y) >= 0)
             {
                 nc = stepCost + n.g_cost;
                 Node neigh;
