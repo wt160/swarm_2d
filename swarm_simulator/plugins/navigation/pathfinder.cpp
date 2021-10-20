@@ -110,7 +110,7 @@ namespace simulator::plugin
         while (!open.empty())
         {
             Node n = open.get();
-            //std::cout<<"("<<n.pos.x<<","<<n.pos.y<<")"<<std::endl;
+            std::cout << "(" << n.pos.x << "," << n.pos.y << ")" << std::endl;
             // closed.push_back( n );
             if (fillOpen(n))
                 return true;

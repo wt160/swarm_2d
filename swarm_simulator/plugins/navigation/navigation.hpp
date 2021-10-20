@@ -30,11 +30,11 @@ namespace simulator::plugin
 
     private:
         std::string robot_name_;
-        bool is_navigation_action_active_;
-        bool got_new_goal_;
+        std::shared_ptr<GoalHandleNavigationAction> current_goal_handle_ptr = nullptr;
         rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr path_visualize_ptr;
         nav_msgs::msg::OccupancyGrid::SharedPtr shared_map_ptr;
         rclcpp_action::Server<NavigationAction>::SharedPtr navigation_action_server_;
         rclcpp::callback_group::CallbackGroup::SharedPtr navigation_action_callback_group_;
+        std::thread *current_navigation_thread_ptr = nullptr;
     };
 } // namespace simulator::plugin

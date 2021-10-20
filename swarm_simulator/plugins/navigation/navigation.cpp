@@ -6,11 +6,19 @@ namespace simulator::plugin
     {
         core_ptr_ = core_ptr;
         robot_name_ = robot_name;
-        is_navigation_action_active_ = false;
         shared_map_ptr = core_ptr->Map_Ptr;
         //navigation_action_callback_group_ = this->create_callback_group(rclcpp::callback_group::CallbackGroupType::Reentrant);
-        this->navigation_action_server_ = rclcpp_action::create_server<NavigationAction>(this->get_node_base_interface(), this->get_node_clock_interface(), this->get_node_logging_interface(), this->get_node_waitables_interface(), robot_name_ + "/navigation_action", std::bind(&NavigationPlugin::handle_action_goal, this, std::placeholders::_1, std::placeholders::_2), std::bind(&NavigationPlugin::handle_action_cancel, this, std::placeholders::_1), std::bind(&NavigationPlugin::handle_action_accepted, this, std::placeholders::_1), rcl_action_server_get_default_options());
-        this->cmd_vel_sub_ = this->create_subscription<geometry_msgs::msg::Twist>(robot_name_ + "/cmd_vel", 10, std::bind(&NavigationPlugin::cmdVelCallback, this, std::placeholders::_1));
+        this->navigation_action_server_ = rclcpp_action::create_server<NavigationAction>(this->get_node_base_interface(),
+                                                                                         this->get_node_clock_interface(),
+                                                                                         this->get_node_logging_interface(),
+                                                                                         this->get_node_waitables_interface(),
+                                                                                         robot_name_ + "/navigation_action",
+                                                                                         std::bind(&NavigationPlugin::handle_action_goal, this, std::placeholders::_1, std::placeholders::_2),
+                                                                                         std::bind(&NavigationPlugin::handle_action_cancel, this, std::placeholders::_1),
+                                                                                         std::bind(&NavigationPlugin::handle_action_accepted, this, std::placeholders::_1),
+                                                                                         rcl_action_server_get_default_options());
+        this->cmd_vel_sub_ = this->create_subscription<geometry_msgs::msg::Twist>(robot_name_ + "/cmd_vel", 10,
+                                                                                  std::bind(&NavigationPlugin::cmdVelCallback, this, std::placeholders::_1));
         path_visualize_ptr = this->create_publisher<visualization_msgs::msg::Marker>(robot_name_ + "/plan_path", 10);
     }
 
@@ -75,14 +83,12 @@ namespace simulator::plugin
         const rclcpp_action::GoalUUID &uuid,
         std::shared_ptr<const NavigationAction::Goal> goal)
     {
-        is_navigation_action_active_ = true;
         RCLCPP_INFO(this->get_logger(), "Received goal request");
         (void)uuid;
         // Let's reject sequences that are over 9000
         // if (goal->order > 9000) {
         //   return rclcpp_action::GoalResponse::REJECT;
         // }
-        got_new_goal_ = true;
         return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
     }
 
@@ -98,7 +104,6 @@ namespace simulator::plugin
     {
         RCLCPP_INFO(this->get_logger(), "Executing goal");
         rclcpp::Rate loop_rate(1);
-        got_new_goal_ = false;
         const auto goal = goal_handle->get_goal();
         auto feedback = std::make_shared<NavigationAction::Feedback>();
         // auto & sequence = feedback->sequence;
@@ -130,9 +135,8 @@ namespace simulator::plugin
         {
             //success find path from start to end
             std::list<Point> path;
-            std::cout << "success" << std::endl;
             double path_cost = path_finder.getPathAndCost(path);
-            std::cout << "path cost:" << path_cost << std::endl;
+            std::cout << "Found path. Cost:" << path_cost << std::endl;
             publishPlannedPath(path, map_resolution);
             Point curr_navigation_pt = start;
             auto path_iterator = path.begin();
@@ -155,7 +159,6 @@ namespace simulator::plugin
             double vw = 0.0;
             while (std::fabs(robot_pos_x - end_pos_x) > map_resolution || std::fabs(robot_pos_y - end_pos_y) > map_resolution)
             {
-
                 while (std::fabs(robot_pos_x - next_navigation_x) > 0.3 * v_limit * map_resolution || std::fabs(robot_pos_y - next_navigation_y) > 0.3 * v_limit * map_resolution)
                 {
                     //std::cout<<"x_diff:"<<robot_pos_x - next_navigation_x<<", y_diff:"<<robot_pos_y - next_navigation_y<<std::endl;
@@ -172,8 +175,13 @@ namespace simulator::plugin
                     (*(core_ptr_->States_Ptr))[robot_name_].VX = vx;
                     (*(core_ptr_->States_Ptr))[robot_name_].VY = vy;
                     (*(core_ptr_->States_Ptr))[robot_name_].W = vw;
+
+                    if (!goal_handle->is_active())
+                        break;
                 }
 
+                if (!goal_handle->is_active())
+                    break;
                 // path_iterator ++;
                 path_iterator++;
 
@@ -194,6 +202,9 @@ namespace simulator::plugin
         //iterate over between calculate the velocity and update the pos in simulator::core, until reach the target pose
 
         // result->current_target_pose = curr_target_pose_local_frame;
+        if (!goal_handle->is_active())
+            return;
+
         result->result = 1;
         goal_handle->succeed(result);
         // return curr_target_pose_local_frame;
@@ -204,14 +215,33 @@ namespace simulator::plugin
             //   result->sequence = sequence;
             RCLCPP_INFO(this->get_logger(), "Goal Succeeded");
         }
-        is_navigation_action_active_ = false;
     }
 
     void NavigationPlugin::handle_action_accepted(const std::shared_ptr<GoalHandleNavigationAction> goal_handle)
     {
+        if (this->current_goal_handle_ptr.get() != nullptr)
+        {
+            if (this->current_goal_handle_ptr->is_active())
+                current_goal_handle_ptr->abort(std::make_shared<NavigationAction::Result>());
+            while (this->current_goal_handle_ptr->is_active())
+                ;
+        }
+        if (this->current_navigation_thread_ptr != nullptr)
+        {
+            if (this->current_navigation_thread_ptr->joinable())
+                this->current_navigation_thread_ptr->join();
+            delete this->current_navigation_thread_ptr;
+            this->current_navigation_thread_ptr = nullptr;
+        }
         // using namespace std::placeholders;
         // this needs to return quickly to avoid blocking the executor, so spin up a new thread
-        std::thread{std::bind(&NavigationPlugin::execute, this, std::placeholders::_1), goal_handle}.detach();
+        std::cout << "Creating a new thread" << std::endl;
+        current_goal_handle_ptr.reset();
+        this->current_goal_handle_ptr = goal_handle;
+        this->current_navigation_thread_ptr = new std::thread{&NavigationPlugin::execute, this, goal_handle};
+        std::cout << "New thread created" << std::endl;
+        //this->current_navigation_thread_ptr->
+        //this->current_navigation_thread_ptr->detach();
         // execute(goal_handle);
     }
 
