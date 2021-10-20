@@ -2,6 +2,7 @@
 
 namespace simulator::plugin
 {
+    using namespace std::chrono;
     NavigationPlugin::NavigationPlugin(std::string robot_name, std::shared_ptr<simulator::core::CoreNode> &core_ptr) : rclcpp::Node{"navigation_plugin_" + robot_name}
     {
         core_ptr_ = core_ptr;
@@ -131,12 +132,14 @@ namespace simulator::plugin
         path_finder.init(shared_map_ptr);
         Point start(curr_x_coord, curr_y_coord);
         Point end(target_x_coord, target_y_coord);
+        auto astar_start = high_resolution_clock::now();
         if (path_finder.search(start, end))
         {
             //success find path from start to end
             std::list<Point> path;
             double path_cost = path_finder.getPathAndCost(path);
-            std::cout << "Found path. Cost:" << path_cost << std::endl;
+            auto duration = duration_cast<microseconds>(high_resolution_clock::now() - astar_start);
+            std::cout << "robot "<<robot_name_<<" Found path. Cost:" << path_cost << " time:"<<duration.count() <<std::endl;
             publishPlannedPath(path, map_resolution);
             Point curr_navigation_pt = start;
             auto path_iterator = path.begin();

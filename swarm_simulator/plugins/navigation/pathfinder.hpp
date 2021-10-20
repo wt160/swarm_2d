@@ -10,6 +10,9 @@
 #include <functional>
 #include "nav_msgs/msg/occupancy_grid.hpp"
 #include <iostream>
+#include <chrono>
+
+using namespace std::chrono;
 
 namespace simulator::plugin
 {
