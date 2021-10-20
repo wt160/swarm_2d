@@ -1,0 +1,8 @@
+experiment_recorder:
+  ros__parameters:
+      # map: /home/wei/swarm_2d_ws/src/swarm_simulator/app/env_2.png
+      map_data_filename: /home/wei/swarm_2d_ws/src/swarm_simulator/experiment_result/office_2_fast_disperse.txt
+      names: [robot01, robot02]
+      xs: [2.0, 5.0, 2.0, 5.0]
+      ys: [2.0, 2.0, 6.0, 6.0]
+      zs: [0.0, 0.0, 0.0, 0.0]

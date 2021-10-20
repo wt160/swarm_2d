@@ -53,7 +53,13 @@ add_executable(main_app app/main.cpp)
 target_link_libraries(main_app ${PROJECT_NAME}_core  ${PROJECT_NAME}_navigation_plugin ${PROJECT_NAME}_slam_plugin)
 ament_target_dependencies(main_app rclcpp nav_msgs geometry_msgs visualization_msgs)
 
+add_executable(experiment_recorder app/experiment_recorder.cpp)
+target_link_libraries(experiment_recorder ${PROJECT_NAME}_core  ${PROJECT_NAME}_navigation_plugin ${PROJECT_NAME}_slam_plugin)
+ament_target_dependencies(experiment_recorder rclcpp nav_msgs geometry_msgs visualization_msgs)
 
+add_executable(final_coverage_recorder app/final_coverage_recorder.cpp)
+target_link_libraries(final_coverage_recorder ${PROJECT_NAME}_core  ${PROJECT_NAME}_navigation_plugin ${PROJECT_NAME}_slam_plugin)
+ament_target_dependencies(final_coverage_recorder rclcpp nav_msgs geometry_msgs visualization_msgs)
 
 if(BUILD_TESTING)
     find_package(ament_lint_auto REQUIRED)
@@ -70,6 +76,8 @@ install(TARGETS
     core_test_node
     navigation_test_node
     main_app
+    experiment_recorder
+    final_coverage_recorder
     DESTINATION lib/${PROJECT_NAME})
 
 ament_package()
