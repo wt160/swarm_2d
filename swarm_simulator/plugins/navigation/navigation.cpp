@@ -24,9 +24,37 @@ namespace simulator::plugin
         path_marker.id = 0;
         path_marker.header.frame_id = "map", path_marker.header.stamp = this->get_clock()->now();
         path_marker.type = visualization_msgs::msg::Marker::LINE_STRIP;
-        path_marker.color.a = 100, path_marker.color.r = 100;
+        path_marker.color.a = 50;
         path_marker.scale.x = 0.1, path_marker.scale.y = 0.2;
         path_marker.action = 0;
+
+        if(this->robot_name_ == "robot01"){
+            path_marker.color.r = 100;
+        }else if(this->robot_name_ == "robot02"){
+            path_marker.color.g = 100;
+        }else if(this->robot_name_ == "robot03"){
+            path_marker.color.b = 100;
+        }else if(this->robot_name_ == "robot04"){
+            path_marker.color.r = 100;
+            path_marker.color.g = 100;
+        }else if(this->robot_name_ == "robot05"){
+            path_marker.color.g = 100;
+            path_marker.color.b = 100;
+        }else if(this->robot_name_ == "robot06"){
+            path_marker.color.r = 100;
+            path_marker.color.b = 100;
+        }else if(this->robot_name_ == "robot07"){
+            path_marker.color.r = 100;
+            path_marker.color.g = 50;
+            path_marker.color.b = 100;
+
+        }else if(this->robot_name_ == "robot08"){
+            path_marker.color.r = 50;
+            path_marker.color.g = 100;
+            path_marker.color.b = 100;
+
+        }
+
 
         for(auto p = path.begin(); p != path.end(); p ++)
         {
