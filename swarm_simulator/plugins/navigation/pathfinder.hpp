@@ -106,7 +106,7 @@ namespace simulator::plugin
 
             // A commonly used way is to use boost
             std::size_t seed = 0;
-            seed = (53 + key.pos.x) * 53 + key.pos.y;
+            seed = ((unsigned int)key.pos.x) << 32 | ((unsigned int)key.pos.y);
             return seed;
         }
     };
