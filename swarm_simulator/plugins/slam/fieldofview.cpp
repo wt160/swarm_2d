@@ -59,10 +59,10 @@ namespace simulator::plugin
         {
             for(int i = 0; i < robot_map_ptr->data.size(); i++)
             {
-                if(robot_map_ptr->data[i] == 0)
-                {
+                // if(robot_map_ptr->data[i] == 0)
+                // {
                     robot_map_ptr->data[i] = -1;
-                }
+                // }
             }
 
         }
@@ -122,60 +122,7 @@ namespace simulator::plugin
             }
 
 
-            // if(isValidMapPoint(end_check_x, end_check_y))
-            // {
-            //     int end_data_index = end_check_y * map_width + end_check_x;
-            //     if(robot_map_ptr->data[end_data_index] == 0)
-            //     {
-            //         //the end of this line of sight is explored, we can safely 
-            //         //skip the check of this line of sight
-            //         continue;
-            //     }
-            // }
-
-            // int check_x = 0;
-            // int check_y = 0;
-            // int check_index = 0;
-            // int higher_bound = check_line_list[i].size();
-            // int lower_bound = 0;
-            // do
-            // {
-            //     check_index = round((higher_bound + lower_bound) / 2);
-            //     check_x = curr_x_coord + check_line_list[i][check_index].first;
-            //     check_y = curr_y_coord + check_line_list[i][check_index].second;
-            //     if(isValidMapPoint(check_x, check_y))
-            //     {
-            //         int check_data = robot_map_ptr->data[check_y * map_width + check_x];
-            //         if(check_data == -1)
-            //         {
-                        
-            //             for(int k = lower_bound; k <= check_index; k++){
-            //                 int temp_check_x = curr_x_coord + check_line_list[i][k].first;
-            //                 int temp_check_y = curr_y_coord + check_line_list[i][k].second;
-
-            //                 robot_map_ptr->data[temp_check_y * map_width + temp_check_x] = 0;
-            //             }
-
-            //             lower_bound = check_index;
-            //         }
-            //         else if(check_data == 100)
-            //         {
-            //             higher_bound = check_index;
-            //         }
-            //         else if(check_data == 0)
-            //         {
-            //             lower_bound = check_index;
-            //         }
-            //     }
-            //     else
-            //     {
-            //         higher_bound = check_index;
-            //     }
-            // }
-            // while(lower_bound < higher_bound - 1);
-
-
-            // std::cout<<robot_name_<<" after"<<std::endl;
+            
 
 
 
@@ -188,12 +135,15 @@ namespace simulator::plugin
                     // if(check_line_list[i][j].first == 6 && check_line_list[i][j].second == 6){
                     //     std::cout<<"(6,6)"<<check_data<<std::endl;
                     // }
+                    int shared_check_data = shared_map_ptr->data[check_y * map_width + check_x];
                     if(check_data == -1)
                     {
                         robot_map_ptr->data[check_y * map_width + check_x] = 0;
                     }
-                    else if(check_data == 100)
+
+                    if(shared_check_data == 100)
                     {
+                        robot_map_ptr->data[check_y * map_width + check_x] = 100;
                         break;
                     }
 
