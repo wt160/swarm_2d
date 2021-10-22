@@ -3,7 +3,8 @@
 swarm仿真器可以由如下命令启动：
 
 ```shell
-ros2 run swarm_simulator --ros-args --params-file xxx
+ros2 run swarm_simulator main_app --ros-args --params-file /home/wei/swarm_2d_ws/src/swarm_simulator/param/office_4_robot.yaml
+
 ```
 
 其中`xxx`是用来指定仿真器初始化采用的地图、机器人数量与坐标以及其他各项参数的文件，通过ros的参数系统传递入程序。一个参数文件的例子如下：

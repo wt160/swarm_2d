@@ -13,51 +13,34 @@ namespace simulator
     class FinalCoverageRecorderNode : public rclcpp::Node
     {
     public:
-        FinalCoverageRecorderNode(std::string robot_name) : rclcpp::Node{"final_coverage_recorder"}
+        FinalCoverageRecorderNode(std::string data_filename) : rclcpp::Node{"final_coverage_recorder"}
         {
             using namespace std;
-            robot_name_ = robot_name;
-            // this->declare_parameter("map");
-            // this->declare_parameter("names");
-            // this->declare_parameter("xs");
-            // this->declare_parameter("ys");
-            // this->declare_parameter("zs");
-            // this->declare_parameter("range", 200.0);
-            // this->declare_parameter("slam_freq", 5.0);
-            // this->declare_parameter("map_data_filename");
-            // this->declare_parameter("communication_data_filename");
+            data_filename_ = data_filename;
+            this->declare_parameter("robot_list");
+            auto robot_names = this->get_parameter("robot_list").as_string_array();
+            
+            for (int i = 0; i < robot_names.size() + 1; i++)
+            {
+                std::string robot_name = "";
+                if(i < robot_names.size()){ 
+                    robot_name = robot_names[i]; 
+                }
+                std::function<void(const nav_msgs::msg::OccupancyGrid::SharedPtr msg)> fcn = std::bind(&FinalCoverageRecorderNode::mapCallback, this, std::placeholders::_1, robot_name);
+                this->map_sub_list_.push_back(this->create_subscription<nav_msgs::msg::OccupancyGrid>(robot_name + "/map", 10, 
+                    fcn));
+            }
 
-            // // auto map_file = this->get_parameter("map").as_string();
-            // auto names = this->get_parameter("names").as_string_array();
-            // auto xs = this->get_parameter("xs").as_double_array();
-            // auto ys = this->get_parameter("ys").as_double_array();
-            // auto zs = this->get_parameter("zs").as_double_array();
-            // auto range = this->get_parameter("range").as_double();
-            // auto slam_freq = this->get_parameter("slam_freq").as_double();
-            // auto map_data_filename = this->get_parameter("map_data_filename").as_string();
-
-
-
-            // int num = min({names.size(), xs.size(), ys.size(), zs.size()});
-
-            // vector<string> robot_names{names.begin(), names.begin() + num}; 
-            // vector<tuple<double, double, double>> robot_poses;
-            // for (int i = 0; i < num; i++)
-                // robot_poses.push_back({xs[i], ys[i], zs[i]});
-
-            this->map_sub_ = this->create_subscription<nav_msgs::msg::OccupancyGrid>(robot_name_ + "/map", 10, std::bind(&FinalCoverageRecorderNode::mapCallback, this, std::placeholders::_1));
-
-            // map_data_file_.open (map_data_filename);
-            // map_data_file_ << "Writing this to a file.\n";
-            // map_data_file_.close();
-
+            data_file_.open(data_filename_, std::ofstream::out | std::ofstream::app);
+            
+            data_acquire_done_ = false;
 
 
         }
 
         
 
-        void mapCallback(const nav_msgs::msg::OccupancyGrid::SharedPtr msg)
+        void mapCallback(const nav_msgs::msg::OccupancyGrid::SharedPtr msg, std::string robot_name)
         {
             int free_cell_num = 0;
             for(auto v = msg->data.begin(); v != msg->data.end(); v ++)
@@ -66,17 +49,58 @@ namespace simulator
                     free_cell_num ++;
                 }
             }
-            std::cout<<"area explored by "<<robot_name_<<": "<<std::to_string(free_cell_num)<<std::endl;
+            if(data_acquire_done_ == false)
+                std::cout<<"area explored by "<<robot_name<<": "<<std::to_string(free_cell_num)<<std::endl;
+                
+            if(robot_name == ""){
+                explored_area_map_["map"] = free_cell_num;
+                // std::cout<<"map area:"<<free_cell_num<<std::endl;
+            }
+            else
+            {
+                explored_area_map_[robot_name] = free_cell_num;
+                // std::cout<<robot_name<<" area:"<<free_cell_num<<std::endl;
 
+            }
+            // std::cout<<"map size:"<<explored_area_map_.size()<<std::endl;
+            if(explored_area_map_.size() == map_sub_list_.size() && data_acquire_done_ == false){
+                data_acquire_done_ = true;
+                int area_summation = 0;
+                int free_area_total = 0;
+                for(auto i = explored_area_map_.begin(); i != explored_area_map_.end(); i ++)
+                {
+                    if(i->first != "map")
+                    {
+                        area_summation += i->second;
+                    }
+                    else
+                    {
+                        free_area_total = i->second;
+                    }
+                }
+                double coverage_intersection_percent = (double)(area_summation - free_area_total) / free_area_total; 
+                std::cout<<"coverage_intersection_percent:"<<coverage_intersection_percent<<std::endl;
+                std::cout<<"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"<<std::endl;
+                std::cout<<"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"<<std::endl;
+                std::cout<<"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"<<std::endl;
+                std::cout<<"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"<<std::endl;
+                std::cout<<"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"<<std::endl;
+                std::cout<<"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"<<std::endl;
+
+                data_file_ << coverage_intersection_percent << std::endl;
+                data_file_.close();
+            }
         }
 
 
 
     private:
-        rclcpp::Subscription<nav_msgs::msg::OccupancyGrid>::SharedPtr map_sub_; 
-        std::string robot_name_;
-        std::ofstream map_data_file_;
+        std::vector<rclcpp::Subscription<nav_msgs::msg::OccupancyGrid>::SharedPtr> map_sub_list_; 
+        std::string data_filename_;
+        std::map<std::string, int> explored_area_map_;
+        std::ofstream data_file_;
         std::ofstream communication_data_file_;
+        bool data_acquire_done_ = false;
     };
 } // namespace simulator
 
@@ -86,13 +110,13 @@ int main(int argc, char const *argv[])
     using namespace simulator;
 
     rclcpp::init(argc, argv);
-    string robot_name = "";
+    std::string data_filename = "";
     if(argc > 1){ 
-        robot_name = std::string(argv[1]);
+        data_filename = std::string(argv[1]);
     }
 
 
-    auto launcher_ptr = std::make_shared<FinalCoverageRecorderNode>(robot_name);
+    auto launcher_ptr = std::make_shared<FinalCoverageRecorderNode>(data_filename);
 
     rclcpp::executors::MultiThreadedExecutor executor;
 

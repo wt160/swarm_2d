@@ -59,10 +59,7 @@ namespace simulator::plugin
         {
             for(int i = 0; i < robot_map_ptr->data.size(); i++)
             {
-                // if(robot_map_ptr->data[i] == 0)
-                // {
                     robot_map_ptr->data[i] = -1;
-                // }
             }
 
         }
@@ -122,8 +119,7 @@ namespace simulator::plugin
             }
 
 
-            
-
+     
 
 
             for(int j = 0; j < i->size(); j++){
