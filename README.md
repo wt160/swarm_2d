@@ -3,7 +3,7 @@
 swarm仿真器可以由如下命令启动：
 
 ```shell
-ros2 run swarm_simulator main_app --ros-args --params-file /home/wei/swarm_2d_ws/src/swarm_simulator/param/office_4_robot.yaml
+ros2 run swarm_simulator main_app --ros-args --params-file xxx
 
 ```
 
