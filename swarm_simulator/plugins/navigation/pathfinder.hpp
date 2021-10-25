@@ -11,8 +11,7 @@
 #include "nav_msgs/msg/occupancy_grid.hpp"
 #include <iostream>
 #include <chrono>
-
-using namespace std::chrono;
+#include <fstream>
 
 namespace simulator::plugin
 {
@@ -106,7 +105,7 @@ namespace simulator::plugin
 
             // A commonly used way is to use boost
             std::size_t seed = 0;
-            seed = ((unsigned int)key.pos.x) << 32 | ((unsigned int)key.pos.y);
+            seed = (53 + key.pos.x) * 53 + key.pos.y;
             return seed;
         }
     };
@@ -142,6 +141,7 @@ namespace simulator::plugin
         PriorityQueue<Node, double> open;
         unordered_map<Node, double, NodeHasher, NodeEqual> cost_so_far;
         map<pair<int, int>, Node> parent_map;
+        std::ofstream data_file_;
     };
 
 }

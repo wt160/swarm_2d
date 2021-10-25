@@ -33,6 +33,7 @@ namespace simulator::plugin
         neighbours[6] = Point(0, 1);
         neighbours[7] = Point(1, 0);
         m.importFromNavOccupancyGrid(map);
+        data_file_.open("/home/wei/astar.txt", std::ofstream::out | std::ofstream::app);
     }
 
     double PathFinder::calcH(Point &p)
@@ -40,7 +41,7 @@ namespace simulator::plugin
         //diagonal distance heuristic
         double dx = std::fabs(end.x - p.x);
         double dy = std::fabs(end.y - p.y);
-        return 1.5 * (dx + dy + (1.414 - 2) * std::min(dx, dy));
+        return  (dx + dy + (1.414213562 - 2) * std::min(dx, dy));
     }
 
     bool PathFinder::isValid(Point &p)
@@ -50,7 +51,7 @@ namespace simulator::plugin
 
     bool PathFinder::isExistPoint(Node &p, double g_cost)
     {
-        if (cost_so_far.find(p) == cost_so_far.end() || g_cost < cost_so_far[p])
+        if (cost_so_far.find(p) == cost_so_far.end() /*|| g_cost < cost_so_far[p]*/)
         {
             return false;
         }
@@ -68,7 +69,7 @@ namespace simulator::plugin
         for (int x = 0; x < 8; x++)
         {
             // one can make diagonals have different cost
-            stepCost = x < 4 ? 1.414 : 1.0;
+            stepCost = x < 4 ? 1.414213562 : 1.0;
             neighbour = n.pos + neighbours[x];
             if (neighbour == end)
             {
@@ -76,7 +77,7 @@ namespace simulator::plugin
                 return true;
             }
 
-            if (isValid(neighbour) && m(neighbour.x, neighbour.y) != 100 && m(neighbour.x, neighbour.y) >= 0)
+            if (isValid(neighbour) && m(neighbour.x, neighbour.y) != 100 /*&& m(neighbour.x, neighbour.y) >= 0*/)
             {
                 nc = stepCost + n.g_cost;
                 Node neigh;
@@ -111,7 +112,9 @@ namespace simulator::plugin
         while (!open.empty())
         {
             Node n = open.get();
+
             // std::cout << "(" << n.pos.x << "," << n.pos.y << ")" << std::endl;
+            // data_file_ << "(" << n.pos.x << "," << n.pos.y << ")" << std::endl;
             // closed.push_back( n );
             if (fillOpen(n))
                 return true;

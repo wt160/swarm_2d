@@ -110,7 +110,7 @@ int main(int argc, char const *argv[])
     double target_x = std::stod(argv[1]);
     double target_y = std::stod(argv[2]);
 
-    std::string robot_name = "tb0";
+    std::string robot_name = "robot01";
     shared_ptr<NavigationActionClient> nav_ptr = make_shared<NavigationActionClient>(robot_name);
     geometry_msgs::msg::PoseStamped  goal;
     goal.header.frame_id = "map";
