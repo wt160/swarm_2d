@@ -29,6 +29,7 @@ namespace simulator::core
 
         // Core data
         nav_msgs::msg::OccupancyGrid::SharedPtr Map_Ptr;
+        nav_msgs::msg::OccupancyGrid::SharedPtr slam_map_ptr;
         std::shared_mutex MapMutex;
         std::shared_ptr<std::map<std::string, State>> States_Ptr;
         std::shared_mutex StatesMutex;
@@ -58,6 +59,7 @@ namespace simulator::core
  
         rclcpp::TimerBase::SharedPtr visualizationTimer_ptr;
         rclcpp::Publisher<nav_msgs::msg::OccupancyGrid>::SharedPtr environmentVisualizer_ptr;
+        rclcpp::Publisher<nav_msgs::msg::OccupancyGrid>::SharedPtr slamVisualizer_ptr;
         std::map<std::string, rclcpp::Publisher<geometry_msgs::msg::Point>::SharedPtr> robot_pose_ptr_map;
         rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr statesVisualizer_ptr;
         rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr labelsVisualizer_ptr;

@@ -9,6 +9,7 @@ namespace simulator::core
     CoreNode::CoreNode(void) : rclcpp::Node{"simulator_core_node"}
     {
         this->Map_Ptr = std::make_shared<nav_msgs::msg::OccupancyGrid>();
+        this->slam_map_ptr = std::make_shared<nav_msgs::msg::OccupancyGrid>();
         this->States_Ptr = std::make_shared<std::map<std::string, State>>();
 
         this->declare_parameter("iteration_timestep", 0.02);
@@ -30,6 +31,7 @@ namespace simulator::core
 
 
         this->environmentVisualizer_ptr = this->create_publisher<nav_msgs::msg::OccupancyGrid>("map", 10);
+        this->slamVisualizer_ptr = this->create_publisher<nav_msgs::msg::OccupancyGrid>("slam_map", 10);
         this->statesVisualizer_ptr = this->create_publisher<visualization_msgs::msg::MarkerArray>("states", 10);
         this->labelsVisualizer_ptr = this->create_publisher<visualization_msgs::msg::MarkerArray>("labels", 10);
 
@@ -77,6 +79,12 @@ namespace simulator::core
             map_height = input_environment_map.rows;
             int data_size = this->Map_Ptr->info.width * this->Map_Ptr->info.height;
             this->Map_Ptr->data.resize(data_size, -1);
+
+            this->slam_map_ptr->header.frame_id = "map";
+            this->slam_map_ptr->info.resolution = map_resolution;
+            this->slam_map_ptr->info.width = input_environment_map.cols;
+            this->slam_map_ptr->info.height = input_environment_map.rows;
+            this->slam_map_ptr->data.resize(data_size, -1);
             for(int i = 0; i < data_size; i++)
             {
                 int mat_value = (int)input_environment_map.data[i];
@@ -110,6 +118,7 @@ namespace simulator::core
 
         this->MapMutex.lock_shared();
         this->environmentVisualizer_ptr->publish(*this->Map_Ptr);
+        this->slamVisualizer_ptr->publish(*this->slam_map_ptr);
         this->MapMutex.unlock_shared();
 
 

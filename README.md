@@ -53,6 +53,12 @@ type: nav_msgs/msg/OccupancyGrid
 
 publish robot group shared map at 30Hz
 
+4, /slam_map
+
+type: nav_msgs/msg/OccupancyGrid
+
+publish shared map with the slam characteristics
+
 # 测试工具
 1, final_coverage_recorder用来测试一次试验中，所有机器人的重合程度，需要提供机器人列表和用于存储结果的文件，结果会添加在结果文件末尾。
 在所有探索完成之后，依赖地图topic： /map, robot01/map, ...

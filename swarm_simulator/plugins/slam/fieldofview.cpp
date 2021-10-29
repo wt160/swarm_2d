@@ -10,6 +10,7 @@ namespace simulator::plugin
 
         //the shared_ptr to the shared map among all the robots 
         shared_map_ptr = core_ptr->Map_Ptr;
+        shared_slam_map_ptr = core_ptr->slam_map_ptr;
         //copy the original environment map from simulator core
         robot_map_ptr = std::make_shared<nav_msgs::msg::OccupancyGrid>(*(core_ptr->Map_Ptr));
         robot_map_ptr->header.frame_id = "map";
@@ -108,9 +109,11 @@ namespace simulator::plugin
                     if(shared_check_data == -1)
                     {
                         shared_map_ptr->data[check_y * map_width + check_x] = 0;
+                        shared_slam_map_ptr->data[check_y * map_width + check_x] = 0;
                     }
                     else if(shared_check_data == 100)
                     {
+                        shared_slam_map_ptr->data[check_y * map_width + check_x] = 100;
                         break;
                     }
 

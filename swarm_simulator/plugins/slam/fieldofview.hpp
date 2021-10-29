@@ -35,6 +35,7 @@ namespace simulator::plugin
             int map_height;
             nav_msgs::msg::OccupancyGrid::SharedPtr robot_map_ptr;
             nav_msgs::msg::OccupancyGrid::SharedPtr shared_map_ptr;
+            nav_msgs::msg::OccupancyGrid::SharedPtr shared_slam_map_ptr;
             rclcpp::TimerBase::SharedPtr field_of_view_ptr;
             double field_of_view_frequency;
             // Map m; 
