@@ -3,7 +3,6 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 #include "swarm_interfaces/action/navigation_action.hpp"
-#include "swarm_interfaces/srv/stop_navigation.hpp"
 #include "geometry_msgs/msg/twist.hpp"
 #include "visualization_msgs/msg/marker.hpp"
 #include "../../core/src/core.hpp"
