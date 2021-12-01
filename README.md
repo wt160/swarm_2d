@@ -67,3 +67,8 @@ publish shared map with the slam characteristics
 
 ros2 run swarm_simulator final_coverage_recorder ~/test.txt --ros-args -p "robot_list:=[robot01, robot02]"
 
+2, experiment_recorder用于记录一次试验中覆盖面积随时间变化的数据
+依赖地图topic: /map
+使用样例：
+ros2 run swarm_simulator experiment_recorder ~/test.txt
+
