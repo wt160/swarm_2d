@@ -13,41 +13,14 @@ namespace simulator
     class ExperimentRecorderNode : public rclcpp::Node
     {
     public:
-        ExperimentRecorderNode() : rclcpp::Node{"experiment_recorder"}
+        ExperimentRecorderNode(std::string data_filename) : rclcpp::Node{"experiment_recorder"}
         {
             using namespace std;
-
-            // this->declare_parameter("map");
-            this->declare_parameter("names");
-            this->declare_parameter("xs");
-            this->declare_parameter("ys");
-            this->declare_parameter("zs");
-            this->declare_parameter("range", 200.0);
-            this->declare_parameter("slam_freq", 5.0);
-            this->declare_parameter("map_data_filename");
-            this->declare_parameter("communication_data_filename");
-
-            // auto map_file = this->get_parameter("map").as_string();
-            auto names = this->get_parameter("names").as_string_array();
-            auto xs = this->get_parameter("xs").as_double_array();
-            auto ys = this->get_parameter("ys").as_double_array();
-            auto zs = this->get_parameter("zs").as_double_array();
-            auto range = this->get_parameter("range").as_double();
-            auto slam_freq = this->get_parameter("slam_freq").as_double();
-            auto map_data_filename = this->get_parameter("map_data_filename").as_string();
-
-
-
-            int num = min({names.size(), xs.size(), ys.size(), zs.size()});
-
-            vector<string> robot_names{names.begin(), names.begin() + num};
-            vector<tuple<double, double, double>> robot_poses;
-            for (int i = 0; i < num; i++)
-                robot_poses.push_back({xs[i], ys[i], zs[i]});
+	    this->data_filename_ = data_filename;
 
             this->map_sub_ = this->create_subscription<nav_msgs::msg::OccupancyGrid>("/map", 10, std::bind(&ExperimentRecorderNode::mapCallback, this, std::placeholders::_1));
 
-            map_data_file_.open (map_data_filename);
+            map_data_file_.open (this->data_filename_,std::ofstream::out);
             // map_data_file_ << "Writing this to a file.\n";
             // map_data_file_.close();
 
@@ -73,7 +46,7 @@ namespace simulator
     private:
         rclcpp::Subscription<nav_msgs::msg::OccupancyGrid>::SharedPtr map_sub_; 
         std::ofstream map_data_file_;
-        std::ofstream communication_data_file_;
+	std::string data_filename_;
     };
 } // namespace simulator
 
@@ -84,7 +57,14 @@ int main(int argc, char const *argv[])
 
     rclcpp::init(argc, argv);
 
-    auto launcher_ptr = std::make_shared<ExperimentRecorderNode>();
+    std::string data_filename = "";
+    if(argc > 1){
+        data_filename = std::string(argv[1]);
+    }
+
+
+    auto launcher_ptr = std::make_shared<ExperimentRecorderNode>(data_filename);
+
 
     rclcpp::executors::MultiThreadedExecutor executor;
 
